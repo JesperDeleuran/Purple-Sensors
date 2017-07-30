@@ -1,0 +1,79 @@
+
+// Jesper Deleuran Larsen
+// Purple Sensors - WiFi Sensor that sends data every 10 minutes to the Blynk app v1.0
+// Wemos D1 Mini pro development board. 
+// DS18B20 - Digital Temperature sensor
+// Deep sleep function included for increasing battery life.
+// Remember 4.7K Ohm Pull-up resistor between the sensors VCC wire and the DATA wire.
+// In order for the controller to "wake up" from Deepsleep there needs to be a connection between the "RST" pin and the "D0" pin on the board.
+ 
+ 
+
+ 
+// ESP & Blynk //
+
+#include <ESP8266WiFi.h>        //ESP Library
+#include <BlynkSimpleEsp8266.h> // Blynk Library
+#define BLYNK_PRINT Serial    // Comment this out to disable prints and save space
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#define ONE_WIRE_BUS 2 // DS18B20 on arduino BUS.2 corresponds to D4 on physical board
+#include <SimpleTimer.h>
+SimpleTimer timer;
+
+// Blynk auth code
+
+  char auth[] = ""; // Blynk Auth Code for API
+
+// WiFi credentials 
+
+  char ssid[] = ""; // SSID
+  char pass[] = ""; // Password 
+
+
+//Deep sleep //
+ 
+  const int sleepTimeS = 60; // Set to seconds
+
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature DS18B20(&oneWire); // Include sensor
+float temp; // Data storage for temperature
+void setup() 
+{
+  Serial.begin(115200);
+
+  Serial.println();
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  Blynk.begin(auth, ssid, pass); // Blynk WiFi sync
+  DS18B20.begin();
+  timer.setInterval(1000L, getSendData);
+  
+ 
+  
+}
+void loop() // Main loop
+{
+  timer.run(); // Initiates SimpleTimer
+  Blynk.run();
+  
+  
+}
+
+// Send data to blynk
+
+void getSendData()
+{
+  DS18B20.requestTemperatures(); 
+  temp = DS18B20.getTempCByIndex(0);
+  Serial.println();
+  Serial.print("Temp C: ");
+  Serial.println(temp);
+  Blynk.virtualWrite(10, temp); //virtual pin V10
+
+  // Deep Sleep command
+  Serial.println("Deep sleep mode");
+  ESP.deepSleep(sleepTimeS*10000000, WAKE_RF_DEFAULT); // Sleep for 10 minutes  
+  
+}
