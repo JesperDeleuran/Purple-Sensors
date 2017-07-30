@@ -1,6 +1,6 @@
 
 
-// Jesper Deleuran Larsen
+// Jesper Deleuran Larsen // 
 // Purple Sensors - Temperature sensor Thingspeak v1.0
 // Wemos D1 Mini pro development board. 
 // DS18B20 - Digital Temperature sensor
@@ -107,6 +107,6 @@ void loop() {
     ESP.deepSleep(sleepTimeS*15000000, WAKE_RF_DEFAULT); // Sleep for 15 minute(s)  15000000
 
     Serial.println("Waiting..."); // These 2 lines are only relevant if the program runs without DeepSleep
-    delay(CLOUD_DELAY);           // ThingSpeak.com requires a minimum of 15 seconds between updates.
+    delay(CLOUD_DELAY);           // ThingSpeak.com requires a minimum of 15 seconds between updates
   }
 }
