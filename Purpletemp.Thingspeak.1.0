@@ -1,6 +1,6 @@
 
 
-// Jesper Deleuran Larsen // 
+// Jesper Deleuran Larsen
 // Purple Sensors - Temperature sensor Thingspeak v1.0
 // Wemos D1 Mini pro development board. 
 // DS18B20 - Digital Temperature sensor
@@ -29,14 +29,12 @@ DeviceAddress TempSensor;
 float tempC;                                // Data for the temperature
 
 // API key and WiFi information
-String apiKey = "";                         // The WRITE API key from Thingspeak.com
-const char* ssid = "";                      // WiFi ssid
-const char* password = "";                  // WiFi password
+String apiKey = "V1IHZ19P023L3BOP";                         // The WRITE API key from Thingspeak.com
+const char* ssid = "Tilgin-7U5qBDddpQHY";                      // WiFi ssid
+const char* password = "7azUDuakUkPCF";                  // WiFi password
 const char* server = "api.thingspeak.com";  
-
-//Deep sleep
- 
-  const int sleepTimeS = 60; // Set to seconds
+int sent = 0;
+const int sleepTimeS = 60;                  // Set to seconds //Deep sleep
 
 WiFiClient client; // ESP8266 WiFi library
 
@@ -76,7 +74,11 @@ void setup() {
   }
 }
 
-void loop() {
+void loop() 
+  
+  {
+
+  {  
   sensors.requestTemperatures();          // Get temperature 
   tempC = sensors.getTempC(TempSensor);   // Save temperature
 
@@ -88,11 +90,15 @@ void loop() {
 
   if (client.connect(server, 80)) { //   "184.106.153.149" or api.thingspeak.com  // Connect to the ThingsSpeak.com website via. API
     String postStr = apiKey;        // Build the update string
-    postStr += "&field2=";          // Put "field(x)" Value here. Determines what field the data will be posted to.
+    postStr += "&field6=";          // Put "field(x)" Value here. Determines what field the data will be posted to.
     postStr += String(tempC);
     postStr += "\r\n\r\n";
 
     client.print("POST /update HTTP/1.1\n");
+    
+    Serial.print("POST update to Thingspeak");
+    Serial.println("");
+    
     client.print("Host: api.thingspeak.com\n");
     client.print("Connection: close\n");
     client.print("X-THINGSPEAKAPIKEY: " + apiKey + "\n");
@@ -101,12 +107,19 @@ void loop() {
     client.print(postStr.length());
     client.print("\n\n");
     client.print(postStr);
-    client.stop();
+    
+    Serial.print("String posted");
+    Serial.println("");
+     }//end if
+     
+     sent++;
+     client.stop();
+     Serial.print("Client Stop");
+     Serial.println("");
+      
+     Serial.println("Deep sleep mode");
+     ESP.deepSleep(sleepTimeS*15000000, WAKE_RF_DEFAULT); // Sleep for 15 minute(s)  15000000 
 
-    Serial.println("Deep sleep mode");
-    ESP.deepSleep(sleepTimeS*15000000, WAKE_RF_DEFAULT); // Sleep for 15 minute(s)  15000000
-
-    Serial.println("Waiting..."); // These 2 lines are only relevant if the program runs without DeepSleep
-    delay(CLOUD_DELAY);           // ThingSpeak.com requires a minimum of 15 seconds between updates
   }
-}
+  }
+ 
