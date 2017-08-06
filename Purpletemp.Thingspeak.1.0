@@ -29,18 +29,19 @@ DeviceAddress TempSensor;
 float tempC;                                // Data for the temperature
 
 // API key and WiFi information
-String apiKey = "V1IHZ19P023L3BOP";                         // The WRITE API key from Thingspeak.com
-const char* ssid = "Tilgin-7U5qBDddpQHY";                      // WiFi ssid
-const char* password = "7azUDuakUkPCF";                  // WiFi password
-const char* server = "api.thingspeak.com";  
-int sent = 0;
-const int sleepTimeS = 60;                  // Set to seconds //Deep sleep
+String     apiKey = "V1IHZ19P023L3BOP";    // The WRITE API key from Thingspeak.com
+const char*ssid = "Tilgin-7U5qBDddpQHY";   // WiFi ssid
+const char*password = "7azUDuakUkPCF";     // WiFi password
+const char*server = "api.thingspeak.com";  
+int        sent = 0;
+const int  sleepTimeS = 60;                // Set to seconds //Deep sleep
 
-WiFiClient client; // ESP8266 WiFi library
+
+WiFiClient client;                         // ESP8266 WiFi library
 
 void setup() {
 
-  Serial.begin(115200); // Wemos D1 mini pro runs 115200
+  Serial.begin(115200);                   // Wemos D1 mini pro runs 115200
   delay(10);
 
   WiFi.begin(ssid, password);
@@ -58,6 +59,10 @@ void setup() {
   }
   Serial.println("");
   Serial.println("WiFi connected");
+  Serial.println("");
+  Serial.println("IP");
+  Serial.println(WiFi.localIP());
+  Serial.println("");
 
   sensors.begin(); 
 
@@ -88,9 +93,9 @@ void loop()
 
 // Send data to Thingspeak via API
 
-  if (client.connect(server, 80)) { //   "184.106.153.149" or api.thingspeak.com  // Connect to the ThingsSpeak.com website via. API
-    String postStr = apiKey;        // Build the update string
-    postStr += "&field6=";          // Put "field(x)" Value here. Determines what field the data will be posted to.
+  if (client.connect(server, 80)) {       //   "184.106.153.149" or api.thingspeak.com  // Connect to the ThingsSpeak.com website via. API
+    String postStr = apiKey;              // Build the update string
+    postStr += "&field7=";                // Put "field(x)" Value here. Determines what field the data will be posted to.
     postStr += String(tempC);
     postStr += "\r\n\r\n";
 
@@ -118,7 +123,8 @@ void loop()
      Serial.println("");
       
      Serial.println("Deep sleep mode");
-     ESP.deepSleep(sleepTimeS*15000000, WAKE_RF_DEFAULT); // Sleep for 15 minute(s)  15000000 
+     Serial.println("");
+     ESP.deepSleep(sleepTimeS*25000000, WAKE_RF_DEFAULT); // Sleep for x minute(s)  15000000 
 
   }
   }
