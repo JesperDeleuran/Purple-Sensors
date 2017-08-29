@@ -1,23 +1,13 @@
-
-
-// Jesper Deleuran Larsen
-// Purple Sensors - Temperature sensor Thingspeak v1.0
-// Wemos D1 Mini pro development board. 
-// DS18B20 - Digital Temperature sensor
-// Deep sleep function included for increasing battery life.
-// Remember 4.7K Ohm Pull-up resistor between the sensors VCC wire and the DATA wire.
-// In order for the controller to "wake up" from Deepsleep there needs to be a connection between the "RST" pin and the "D0" pin on the board.
-
-
 // Include required libraries
 #include <ESP8266WiFi.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <ThingSpeak.h>
 
+
 // Define pins for data. Sensor data on "D4"
 #define ONE_WIRE_BUS 2
-#define CLOUD_DELAY  20000                  // Delay needed if the program runs without the DeepSleep function. Thingspeak needs a min. of 15s between updates.
+#define CLOUD_DELAY  20000   
 
 // Initialize onewire
 OneWire oneWire(ONE_WIRE_BUS);              // BUS means more sensors can be connected. Sensor on D4
@@ -26,21 +16,21 @@ DallasTemperature sensors(&oneWire);
 // Temperature sensor  
 boolean TempSensorAvailable = false;
 DeviceAddress TempSensor;
-float tempC;                                // Data for the temperature
+float tempC;     
 
 // API key and WiFi information
-String     apiKey = "V1IHZ19P023L3BOP";    // The WRITE API key from Thingspeak.com
+String     apiKey = "V1IHZ19P023L3BOP";    // The WRITE API key from Thingspeak.com - V1IHZ19P023L3BOP
 const char*ssid = "Tilgin-7U5qBDddpQHY";   // WiFi ssid
 const char*password = "7azUDuakUkPCF";     // WiFi password
-const char*server = "api.thingspeak.com";  
+const char*server = "api.thingspeak.com";                    // api.thingspeak.com
 int        sent = 0;
 const int  sleepTimeS = 60;                // Set to seconds //Deep sleep
-
 
 WiFiClient client;                         // ESP8266 WiFi library
 
 void setup() {
 
+  
   Serial.begin(115200);                   // Wemos D1 mini pro runs 115200
   delay(10);
 
@@ -57,6 +47,10 @@ void setup() {
     delay(500);
     Serial.print(".");
   }
+
+  if (WiFi.status() == WL_CONNECTED) {
+  
+  
   Serial.println("");
   Serial.println("WiFi connected");
   Serial.println("");
@@ -64,7 +58,17 @@ void setup() {
   Serial.println(WiFi.localIP());
   Serial.println("");
 
-  sensors.begin(); 
+  }
+
+  else { 
+
+  Serial.println("Connection failed");
+   ESP.restart();
+  }
+
+
+
+ sensors.begin(); 
 
   Serial.print("Found ");
   Serial.print(sensors.getDeviceCount(), DEC);  // More sensors can be connected to the BUS. In this example only one sensor is used
@@ -95,7 +99,7 @@ void loop()
 
   if (client.connect(server, 80)) {       //   "184.106.153.149" or api.thingspeak.com  // Connect to the ThingsSpeak.com website via. API
     String postStr = apiKey;              // Build the update string
-    postStr += "&field7=";                // Put "field(x)" Value here. Determines what field the data will be posted to.
+    postStr += "&field8=";                // Put "field(x)" Value here. Determines what field the data will be posted to.
     postStr += String(tempC);
     postStr += "\r\n\r\n";
 
@@ -115,7 +119,16 @@ void loop()
     
     Serial.print("String posted");
     Serial.println("");
-     }//end if
+     }
+
+     else { 
+
+     Serial.print("HTTP Connection failed");
+     Serial.println("");
+     Serial.println("ESP.restart");
+     ESP.restart(); // Restart the ESP in case of bad connection
+      
+     }
      
      sent++;
      client.stop();
@@ -128,4 +141,4 @@ void loop()
 
   }
   }
- 
+
